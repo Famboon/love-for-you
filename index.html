@@ -33,7 +33,7 @@
       transition: background 0.6s ease;
     }
 
-    /* พื้นหลังดอกไม้ (แสดงหลังจากกดโอเค) */
+    /* พื้นหลังดอกไม้ */
     body.flower {
       background:
         linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
@@ -51,7 +51,6 @@
       box-shadow: 0 18px 60px var(--shadow);
     }
 
-    /* ข้อความตรงกลาง */
     h1 {
       position: absolute;
       top: 24px;
@@ -61,6 +60,9 @@
       font-size: 26px;
       font-weight: 700;
       letter-spacing: 1px;
+      text-align: center;
+      width: 100%;
+      padding: 0 16px;
     }
 
     /* ปุ่มโอเค */
@@ -72,17 +74,14 @@
       padding: 16px 30px;
       border: 0;
       border-radius: 999px;
-      background: #22c55e;
-      color: #0b1220;
+      background: #ffffff;
+      color: #ff2e8f;
       font-weight: 800;
       font-size: 18px;
       cursor: pointer;
-      box-shadow: 0 14px 28px rgba(34, 197, 94, 0.35);
+      box-shadow: 0 14px 28px rgba(112, 85, 103, 0.35);
     }
-
-    #okBtn:active {
-      transform: translate(-50%, -50%) scale(0.96);
-    }
+    #okBtn:active { transform: translate(-50%, -50%) scale(0.96); }
 
     /* ปุ่มไม่ (หลบเม้าส์) */
     #runner {
@@ -101,15 +100,102 @@
       user-select: none;
       box-shadow: 0 12px 24px rgba(218, 35, 35, 0.3);
     }
+
+    /* ===== หน้าสุดท้าย ===== */
+    #finalWrap {
+      display: none;
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 28px;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    #finalMessage{
+      font-size: clamp(34px, 6vw, 72px);
+      font-weight: 1000;
+      letter-spacing: 1px;
+      line-height: 1.1;
+
+      /* เริ่มต้นให้ซ่อน */
+      opacity: 0;
+      transform: translateY(18px) scale(0.92);
+      filter: blur(2px);
+
+      text-shadow: 0 10px 30px rgba(0,0,0,0.45);
+    }
+
+    /* วิ้งๆ เป็นชั้นๆ */
+    #finalMessage .glow {
+      display: inline-block;
+      background: linear-gradient(90deg, #ffffff, #ffd1ea, #ffffff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: shimmer 1.8s linear infinite;
+    }
+
+    /* เมื่อเสร็จ: ซ่อน stage, โชว์ final, เล่นอนิเมชั่น */
+    body.done .stage { display: none; }
+    body.done #finalWrap { display: grid; }
+
+    body.done #finalMessage{
+      animation: popIn 800ms cubic-bezier(.2, 1.4, .25, 1) forwards;
+    }
+
+    body.done #finalMessage::after{
+      content: " ✨";
+      display: inline-block;
+      animation: floaty 1.4s ease-in-out infinite;
+    }
+
+    /* เอฟเฟกต์พื้นหลังแบบฟุ้ง */
+    body.done::before{
+      content: "";
+      position: fixed;
+      inset: -40px;
+      background: radial-gradient(600px 300px at 50% 45%, rgba(255, 255, 255, 0.16), transparent 70%);
+      animation: breathe 2.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes popIn{
+      0%   { opacity: 0; transform: translateY(18px) scale(0.92); filter: blur(2px); }
+      60%  { opacity: 1; transform: translateY(-6px) scale(1.06); filter: blur(0); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes shimmer{
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    @keyframes floaty{
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes breathe{
+      0%, 100% { opacity: 0.55; transform: scale(1); }
+      50% { opacity: 0.9; transform: scale(1.03); }
+    }
   </style>
 </head>
 
 <body>
   <div class="stage" id="stage">
-    <h1>เป็นแฟนกันนะ</h1>
+    <h1>วาเลนไลน์นี้ เป็นแฟนกันนะ</h1>
 
     <button id="okBtn">โอเค</button>
     <button id="runner">ไม่</button>
+  </div>
+
+  <!-- หน้าสุดท้าย -->
+  <div id="finalWrap" aria-hidden="true">
+    <div id="finalMessage"><span class="glow">เย้ดีใจจังเลยยย</span></div>
   </div>
 
   <script>
@@ -160,14 +246,13 @@
     }
 
     moveButtonRandom();
-
     stage.addEventListener("mousemove", dodgeMouse);
     runner.addEventListener("mouseenter", moveButtonRandom);
     window.addEventListener("resize", moveButtonRandom);
 
-    /* กดโอเค → แสดงดอกไม้ทันที (ไม่รีเฟรช) */
     okBtn.addEventListener("click", () => {
       document.body.classList.add("flower");
+      document.body.classList.add("done");
     });
   </script>
 </body>
